@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Shadow Quest – Year 6 Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#1b1145; --bg2:#3b1d8f; --card:#ffffff; --ink:#1d1b3a; --muted:#6b6890;
+  --gold:#ffc83d; --gold2:#ff9f1c; --good:#2ecc71; --bad:#ff4d6d; --blue:#3a86ff; --violet:#8338ec;
+  --bronze:#cd7f32; --silver:#9aa4b5; --goldlvl:#f4b400; --plat:#38d6e8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Fredoka',system-ui,'Segoe UI',Arial,sans-serif;color:var(--ink);
+  background:radial-gradient(circle at 20% 10%,#5b2bd6 0,transparent 40%),radial-gradient(circle at 90% 90%,#ff7a00 0,transparent 35%),linear-gradient(160deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;min-height:100vh;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none}
+.screen{display:none;min-height:100vh;padding:16px;max-width:1000px;margin:0 auto}
+.screen.active{display:block}
+h1,h2,h3{margin:.2em 0}
+.logo{font-size:clamp(34px,7vw,60px);font-weight:700;color:#fff;text-align:center;letter-spacing:1px;
+  text-shadow:0 4px 0 #00000055,0 0 30px #ffc83d88;margin-top:10px}
+.logo span{color:var(--gold)}
+.sub{color:#e6defc;text-align:center;font-size:18px;margin-bottom:14px}
+.panel{background:var(--card);border-radius:22px;padding:20px;box-shadow:0 8px 0 #00000033,0 12px 30px #0004}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+input[type=text]{font-family:inherit;font-size:20px;padding:12px 14px;border-radius:14px;border:3px solid #d9d4f5;width:100%;outline:none}
+input[type=text]:focus{border-color:var(--violet)}
+label.f{font-weight:600;display:block;margin:8px 0 6px}
+.btn{background:var(--violet);color:#fff;font-size:20px;font-weight:600;padding:12px 22px;border-radius:16px;box-shadow:0 5px 0 #4a1a9a;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #4a1a9a}
+.btn.gold{background:linear-gradient(#ffd45c,#ffa41b);color:#4a2b00;box-shadow:0 5px 0 #c26d00}
+.btn.green{background:var(--good);box-shadow:0 5px 0 #1e8c4e}
+.btn.ghost{background:#efeaff;color:var(--violet);box-shadow:0 5px 0 #c9bdf5}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.blooks{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:6px}
+.blook{background:#f4f1ff;border-radius:18px;padding:10px 6px;text-align:center;border:4px solid transparent;transition:transform .15s}
+.blook:hover{transform:translateY(-3px)}
+.blook.sel{border-color:var(--gold);background:#fff7dc;transform:scale(1.04)}
+.blook svg{width:84px;height:84px}
+.blook b{display:block;font-size:17px}
+.blook small{color:var(--muted);font-size:13px}
+/* top bar */
+.topbar{display:flex;align-items:center;gap:10px;color:#fff;margin-bottom:12px;flex-wrap:wrap}
+.chip{background:#ffffff22;border:2px solid #ffffff33;border-radius:999px;padding:6px 14px;font-weight:600;display:flex;align-items:center;gap:6px;font-size:18px}
+.chip.goldc{background:linear-gradient(#ffd45c,#ffa41b);color:#4a2b00;border-color:#fff6}
+.me{display:flex;align-items:center;gap:8px}
+.me svg{width:44px;height:44px}
+.spacer{flex:1}
+/* map */
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.lvl{border-radius:22px;padding:16px;color:#fff;position:relative;box-shadow:0 6px 0 #0003;min-height:190px;display:flex;flex-direction:column}
+.lvl h3{font-size:24px}
+.lvl p{margin:.3em 0 .6em;font-size:15px;opacity:.95;flex:1}
+.lvl .st{font-weight:600;font-size:15px;background:#0003;border-radius:10px;padding:4px 8px;display:inline-block;margin-bottom:8px}
+.lvl.locked{filter:grayscale(.9) brightness(.7)}
+.lvl.locked::after{content:"🔒";position:absolute;right:14px;top:10px;font-size:32px}
+.l0{background:linear-gradient(135deg,#d58a44,#8d4f1b)}
+.l1{background:linear-gradient(135deg,#aeb8c8,#5d6678)}
+.l2{background:linear-gradient(135deg,#ffcf3f,#d68f00)}
+.l3{background:linear-gradient(135deg,#53e3f0,#2a6fd6)}
+.lb{margin-top:14px}
+.lb .item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;margin:4px 0;background:#f4f1ff;font-weight:600}
+.lb .item.me1{background:#fff2c2}
+.lb .item svg{width:34px;height:34px}
+.lb .rank{width:26px;text-align:center;color:var(--muted)}
+.lb .g{margin-left:auto}
+/* quiz */
+.progress{display:flex;gap:6px;margin:6px 0 12px}
+.progress i{flex:1;height:10px;border-radius:6px;background:#ffffff33}
+.progress i.ok{background:var(--good)} .progress i.no{background:var(--bad)} .progress i.cur{background:#fff}
+.qcard{background:#fff;border-radius:22px;padding:18px 18px 20px;box-shadow:0 8px 0 #0003}
+.qtag{display:inline-block;font-size:14px;font-weight:600;padding:3px 10px;border-radius:999px;color:#fff;margin-bottom:6px}
+.qtext{font-size:clamp(20px,3.2vw,26px);font-weight:600;line-height:1.3;margin:4px 0 12px}
+.vocab{color:var(--violet);font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{color:#fff;font-size:clamp(17px,2.4vw,21px);font-weight:600;padding:16px 14px;border-radius:16px;text-align:left;min-height:74px;box-shadow:0 5px 0 #0003;transition:transform .08s,opacity .2s;line-height:1.25}
+.opt:active{transform:translateY(3px)}
+.o0{background:#f7a72b}.o1{background:#3a86ff}.o2{background:#2ec27e}.o3{background:#ef476f}
+.opt.dim{opacity:.35}
+.opt.right{outline:5px solid #fff;box-shadow:0 0 0 9px var(--good)}
+.opt.wrong{outline:5px solid #fff;box-shadow:0 0 0 9px var(--bad)}
+.feedback{margin-top:14px;border-radius:16px;padding:14px 16px;font-size:18px;display:none;line-height:1.35}
+.feedback.show{display:block;animation:pop .25s}
+.feedback.ok{background:#e3f9ec;border:3px solid var(--good)}
+.feedback.no{background:#ffe8ed;border:3px solid var(--bad)}
+.feedback b.h{display:block;font-size:22px;margin-bottom:4px}
+.nextbar{display:flex;justify-content:flex-end;margin-top:12px}
+@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+/* sort */
+.sortrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px;border-radius:14px;background:#f6f4ff;margin:6px 0}
+.sortrow .it{font-weight:600;font-size:19px;min-width:170px;display:flex;align-items:center;gap:8px}
+.sortrow .it span.e{font-size:26px}
+.catb{background:#fff;border:3px solid #d9d4f5;color:var(--ink);font-size:16px;font-weight:600;padding:8px 12px;border-radius:12px}
+.catb.sel{background:var(--violet);color:#fff;border-color:var(--violet)}
+.sortrow.ok{background:#e3f9ec}.sortrow.no{background:#ffe8ed}
+/* order */
+.ordpool,.ordseq{display:flex;flex-direction:column;gap:8px}
+.ordb{background:#f4f1ff;border:3px solid #d9d4f5;text-align:left;font-size:18px;font-weight:500;padding:10px 12px;border-radius:12px;color:var(--ink)}
+.ordb.used{opacity:.3;pointer-events:none}
+.ordseq .s{background:#efeaff;border-radius:12px;padding:10px 12px;font-size:18px;display:flex;gap:10px}
+.ordseq .s b{color:var(--violet)}
+.ordseq .s.ok{background:#e3f9ec}.ordseq .s.no{background:#ffe8ed}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* sim */
+.simbox{background:#0f0b2a;border-radius:16px;padding:8px}
+.simbox svg{width:100%;height:auto;display:block}
+.slider{width:100%;accent-color:var(--gold);height:30px}
+.simread{display:flex;justify-content:space-between;font-weight:600;margin:6px 2px}
+/* chest overlay */
+.overlay{position:fixed;inset:0;background:#120a33e6;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.show{display:flex}
+.chestwrap{text-align:center;color:#fff;max-width:720px;width:100%}
+.chestwrap h2{font-size:34px}
+.chests{display:flex;gap:16px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+.chest{background:none;padding:0;transition:transform .2s}
+.chest:hover{transform:translateY(-8px) rotate(-3deg)}
+.chest svg{width:150px;height:130px}
+.chest.open{animation:shake .5s}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.reward{font-size:40px;font-weight:700;color:var(--gold);min-height:60px;text-shadow:0 3px 0 #0006}
+.reward small{display:block;font-size:20px;color:#fff;font-weight:500}
+/* level end */
+.big{font-size:64px;text-align:center}
+.center{text-align:center}
+.bar{height:22px;background:#eee;border-radius:12px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:12px}
+/* report */
+.report{background:#fff;border-radius:22px;padding:24px;box-shadow:0 8px 0 #0003}
+.rhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:3px dashed #e5e0fa;padding-bottom:12px}
+.rhead svg{width:80px;height:80px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.stat{background:#f6f4ff;border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:26px;color:var(--violet)}
+.stat span{font-size:14px;color:var(--muted)}
+table.sc{width:100%;border-collapse:collapse;margin:8px 0}
+table.sc td,table.sc th{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:middle;font-size:16px}
+table.sc th{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:600;font-size:14px;white-space:nowrap}
+.b-na{background:#eee;color:#777}.b-wt{background:#ffe1e6;color:#b0153a}.b-ach{background:#fff1c7;color:#8a5a00}.b-ex{background:#d8f7e5;color:#147a43}
+.mis li{margin:6px 0;font-size:16px}
+.review{font-size:15px}
+.review .ri{padding:6px 0;border-bottom:1px solid #f0f0f0}
+.reflect textarea{width:100%;font-family:inherit;font-size:16px;border:2px solid #d9d4f5;border-radius:12px;padding:8px;min-height:44px;resize:vertical}
+.sect{margin-top:18px}
+.sect h3{color:var(--violet)}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#fff;color:var(--ink);padding:10px 18px;border-radius:999px;font-weight:600;box-shadow:0 6px 20px #0005;z-index:80;display:none}
+.toast.show{display:block;animation:pop .25s}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+@media (max-width:640px){
+  .opts{grid-template-columns:1fr}
+  .cols2{grid-template-columns:1fr}
+  .chest svg{width:96px;height:84px}
+  .sortrow .it{min-width:100%}
+}
+@media print{
+  body{background:#fff}
+  .screen{display:none!important}
+  #report{display:block!important;padding:0}
+  .noprint,.topbar,.overlay,canvas{display:none!important}
+  .report{box-shadow:none;padding:0}
+  .stat{border:1px solid #ddd}
+  .reflect textarea{border:1px solid #999}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- START -->
+<section class="screen active" id="start">
+  <div class="logo">Shadow <span>Quest</span></div>
+  <div class="sub">Year 6 Science · Shadow Investigations · Answer, open chests, collect gold!</div>
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2;min-width:220px"><label class="f">Your name</label><input type="text" id="pname" maxlength="24" placeholder="e.g. Aisha"></div>
+      <div style="flex:1;min-width:140px"><label class="f">Class</label><input type="text" id="pclass" maxlength="10" placeholder="e.g. 6A"></div>
+    </div>
+    <label class="f" style="margin-top:14px">Choose your Blook</label>
+    <div class="blooks" id="blookPick"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px;flex-wrap:wrap">
+      <span style="color:var(--muted)" id="resumeNote"></span>
+      <button class="btn gold" id="startBtn">Start Quest ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section class="screen" id="map">
+  <div class="topbar">
+    <div class="me" id="meChip"></div>
+    <div class="spacer"></div>
+    <div class="chip goldc">🪙 <span class="goldval">0</span></div>
+    <div class="chip">🔥 Best <span id="bestStreakMap">0</span></div>
+  </div>
+  <div class="panel">
+    <h2>Choose a level</h2>
+    <p style="margin:.2em 0 1em;color:var(--muted)">Score <b>7 out of 10</b> or more to unlock the next level. You can replay a level to improve.</p>
+    <div class="levels" id="levels"></div>
+    <div class="lb">
+      <h3>🏆 Leaderboard</h3>
+      <div id="lbList"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn green" id="finishBtn">Finish &amp; get my report 📋</button>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="quiz">
+  <div class="topbar">
+    <div class="me" id="meChip2"></div>
+    <div class="chip" id="lvlChip"></div>
+    <div class="spacer"></div>
+    <div class="chip">🔥 <span id="streak">0</span></div>
+    <div class="chip goldc">🪙 <span class="goldval">0</span></div>
+  </div>
+  <div class="progress" id="progress"></div>
+  <div class="qcard">
+    <div id="qbody"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="nextbar"><button class="btn" id="nextBtn" style="display:none">Next ▶</button></div>
+  </div>
+</section>
+
+<!-- LEVEL END -->
+<section class="screen" id="lvlend">
+  <div class="panel center" id="lvlendBody"></div>
+</section>
+
+<!-- REPORT -->
+<section class="screen" id="report">
+  <div class="report" id="reportBody"></div>
+</section>
+
+<!-- CHEST OVERLAY -->
+<div class="overlay" id="chestOv">
+  <div class="chestwrap">
+    <h2 id="chestTitle">Correct! Choose a chest</h2>
+    <div class="chests" id="chests"></div>
+    <div class="reward" id="reward"></div>
+    <button class="btn gold" id="chestNext" style="display:none">Continue ▶</button>
+  </div>
+</div>
+
+<script>
+/* ================= BLOOKS (original characters) ================= */
+const BLOOKS = [
+  {id:'lumo', name:'Lumo', role:'Light source', svg:`<svg viewBox="0 0 100 100"><path d="M50 8c-18 0-30 13-30 29 0 12 7 19 12 25 3 4 4 7 4 11h28c0-4 1-7 4-11 5-6 12-13 12-25C80 21 68 8 50 8z" fill="#ffe066" stroke="#e0a800" stroke-width="3"/><rect x="36" y="74" width="28" height="8" rx="3" fill="#9aa4b5"/><rect x="38" y="83" width="24" height="7" rx="3" fill="#7b8496"/><circle cx="41" cy="38" r="5" fill="#1d1b3a"/><circle cx="59" cy="38" r="5" fill="#1d1b3a"/><circle cx="43" cy="36" r="1.6" fill="#fff"/><circle cx="61" cy="36" r="1.6" fill="#fff"/><path d="M41 50q9 8 18 0" stroke="#1d1b3a" stroke-width="3" fill="none" stroke-linecap="round"/><g stroke="#ffb703" stroke-width="3" stroke-linecap="round"><path d="M10 30l-7-3"/><path d="M90 30l7-3"/><path d="M50 2v-3"/></g></svg>`},
+  {id:'opa', name:'Opa', role:'Opaque rock', svg:`<svg viewBox="0 0 100 100"><path d="M18 72c-6-14 0-34 14-44 12-9 32-10 44 0 12 10 14 30 8 44-4 9-14 14-33 14S22 81 18 72z" fill="#8d7b68" stroke="#5b4d40" stroke-width="3"/><path d="M30 40q6-6 12-2" stroke="#6e5f50" stroke-width="3" fill="none"/><circle cx="40" cy="56" r="5" fill="#1d1b3a"/><circle cx="62" cy="56" r="5" fill="#1d1b3a"/><circle cx="42" cy="54" r="1.6" fill="#fff"/><circle cx="64" cy="54" r="1.6" fill="#fff"/><path d="M44 68q7 5 14 0" stroke="#1d1b3a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="92" rx="34" ry="5" fill="#00000055"/></svg>`},
+  {id:'glim', name:'Glimmer', role:'Transparent jelly', svg:`<svg viewBox="0 0 100 100"><path d="M20 52c0-20 13-36 30-36s30 16 30 36c0 4-3 6-6 6H26c-3 0-6-2-6-6z" fill="#a8f0ff88" stroke="#38d6e8" stroke-width="3"/><g stroke="#38d6e8" stroke-width="3" fill="none" stroke-linecap="round"><path d="M30 58q-4 12 2 24"/><path d="M42 58q4 14-2 28"/><path d="M58 58q-4 14 2 28"/><path d="M70 58q4 12-2 24"/></g><circle cx="41" cy="38" r="5" fill="#1d1b3a"/><circle cx="59" cy="38" r="5" fill="#1d1b3a"/><circle cx="43" cy="36" r="1.6" fill="#fff"/><circle cx="61" cy="36" r="1.6" fill="#fff"/><path d="M44 47q6 5 12 0" stroke="#1d1b3a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`},
+  {id:'tissy', name:'Tissy', role:'Translucent ghost', svg:`<svg viewBox="0 0 100 100"><path d="M22 86V44c0-16 12-30 28-30s28 14 28 30v42l-9-7-9 7-10-7-10 7-9-7z" fill="#ffffffcc" stroke="#c9bdf5" stroke-width="3"/><circle cx="41" cy="44" r="5" fill="#1d1b3a"/><circle cx="59" cy="44" r="5" fill="#1d1b3a"/><circle cx="43" cy="42" r="1.6" fill="#fff"/><circle cx="61" cy="42" r="1.6" fill="#fff"/><ellipse cx="50" cy="58" rx="5" ry="6" fill="#1d1b3a"/><circle cx="33" cy="54" r="4" fill="#ffb3c6"/><circle cx="67" cy="54" r="4" fill="#ffb3c6"/></svg>`},
+  {id:'sunny', name:'Sunny', role:'The Sun', svg:`<svg viewBox="0 0 100 100"><g stroke="#ff9f1c" stroke-width="5" stroke-linecap="round"><path d="M50 4v12"/><path d="M50 84v12"/><path d="M4 50h12"/><path d="M84 50h12"/><path d="M17 17l9 9"/><path d="M74 74l9 9"/><path d="M83 17l-9 9"/><path d="M26 74l-9 9"/></g><circle cx="50" cy="50" r="28" fill="#ffd166" stroke="#ff9f1c" stroke-width="3"/><circle cx="41" cy="46" r="4.5" fill="#1d1b3a"/><circle cx="59" cy="46" r="4.5" fill="#1d1b3a"/><path d="M40 58q10 9 20 0" stroke="#1d1b3a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="34" cy="56" r="4" fill="#ff8fa3"/><circle cx="66" cy="56" r="4" fill="#ff8fa3"/></svg>`},
+  {id:'umbra', name:'Umbra', role:'Shadow cat', svg:`<svg viewBox="0 0 100 100"><path d="M24 30l4-20 14 14h16l14-14 4 20c6 8 8 16 8 24 0 20-16 34-34 34S16 74 16 54c0-8 2-16 8-24z" fill="#2b2155" stroke="#120a33" stroke-width="3"/><ellipse cx="38" cy="52" rx="7" ry="8" fill="#ffd166"/><ellipse cx="62" cy="52" rx="7" ry="8" fill="#ffd166"/><ellipse cx="38" cy="53" rx="2.5" ry="6" fill="#120a33"/><ellipse cx="62" cy="53" rx="2.5" ry="6" fill="#120a33"/><path d="M46 66l4 3 4-3" stroke="#ff8fa3" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`}
+];
+const BOTS = [
+  {name:'Shady Bot', blook:'umbra'},
+  {name:'Dusk Bot', blook:'opa'},
+  {name:'Flicker Bot', blook:'lumo'}
+];
+const blookById = id => BLOOKS.find(b=>b.id===id) || BLOOKS[0];
+
+/* ================= LEVELS = SUCCESS CRITERIA ================= */
+const LEVELS = [
+  {name:'Bronze', icon:'🥉', color:'#cd7f32', sc:'I can investigate how shadows are formed and give simple conclusions based on it.', short:'Give simple conclusions about how shadows form'},
+  {name:'Silver', icon:'🥈', color:'#7b8496', sc:'I can investigate how shadows are formed and evaluate a line graph based on it.', short:'Evaluate a line graph (Murad\'s results)'},
+  {name:'Gold', icon:'🥇', color:'#d68f00', sc:'I can investigate how shadows are formed and justify my answers.', short:'Justify my answers using science'},
+  {name:'Platinum', icon:'💎', color:'#2a6fd6', sc:'I can plan and design an experiment on the concept of shadow formation.', short:'Plan and design a shadow experiment'}
+];
+const PASS = 7; // out of 10
+
+/* ================= MISCONCEPTIONS ================= */
+const MIS = {
+  'light-through':'Light <b>cannot</b> pass through an opaque object — that is why it makes a dark shadow.',
+  'reflection':'A shadow is <b>not</b> a reflection. It is a dark area where light has been blocked.',
+  'source':'A light source <b>makes its own light</b> (Sun, torch, fire). The Moon and mirrors only reflect light.',
+  'side':'A shadow forms on the <b>opposite side</b> of the object from the light source.',
+  'shape':'A shadow has the <b>same outline shape</b> as the object because light travels in straight lines.',
+  'materials':'<b>Opaque</b> blocks all light, <b>translucent</b> lets some light through, <b>transparent</b> lets almost all light through.',
+  'distance':'The <b>closer</b> an object is to the light source, the <b>bigger</b> its shadow.',
+  'straight':'Light travels in <b>straight lines</b>.',
+  'graph-trend':'To describe a graph, follow the line from left to right and say how it changes.',
+  'graph-read':'To read a value: go <b>up</b> from the x-axis to the line, then <b>across</b> to the y-axis.',
+  'anomaly':'An <b>anomaly</b> is a result that does not fit the pattern. Repeat that measurement to check it.',
+  'variables':'<b>Independent</b> = what you change. <b>Dependent</b> = what you measure. <b>Control</b> = what you keep the same.',
+  'fair-test':'In a <b>fair test</b> you change only ONE variable and keep everything else the same.',
+  'reliable':'Repeating measurements and finding an average makes results more <b>reliable</b>.',
+  'sun':'Shadows are shortest at midday when the Sun is <b>high</b> in the sky, and longest when the Sun is low.',
+  'method':'A good method follows a logical order: set up → change one thing → measure → repeat → record.'
+};
+
+/* ================= QUESTION BANK ================= */
+// type: mc | tf | sort | order | sim ; a = index of correct option in opts ; mis = {optionIndex: misconceptionKey}
+const Q = [
+ // ---------- BRONZE (L0) ----------
+ {l:0,type:'mc',q:'How is a <span class="vocab">shadow</span> formed?',opts:['Light is blocked by an object','Light passes through an object','An object reflects light like a mirror','The object makes its own darkness'],a:0,mis:{1:'light-through',2:'reflection',3:'reflection'},why:'Light travels from the light source. When an object blocks the light, it cannot reach the space behind the object, so a dark shadow forms.'},
+ {l:0,type:'mc',q:'Which of these is a <span class="vocab">light source</span>?',opts:['The Moon','A mirror','A torch','A book'],a:2,mis:{0:'source',1:'source'},why:'A torch makes its own light. The Moon and a mirror only <b>reflect</b> light from somewhere else.'},
+ {l:0,type:'mc',q:'In the starter, you shone a light on a <b>book</b>, a <b>tissue</b> and a <b>clear plastic bottle</b>. Which made the darkest shadow?',opts:['The tissue','The book','The clear bottle','They were all the same'],a:1,mis:{0:'materials',2:'materials',3:'materials'},why:'The book is <b>opaque</b> – it blocks all the light – so it makes the darkest shadow.'},
+ {l:0,type:'sort',q:'Sort each object: is it <span class="vocab">opaque</span>, <span class="vocab">translucent</span> or <span class="vocab">transparent</span>?',cats:['Opaque','Translucent','Transparent'],items:[{t:'Book',e:'📕',c:0},{t:'Tissue paper',e:'🧻',c:1},{t:'Clear glass window',e:'🪟',c:2},{t:'Wooden door',e:'🚪',c:0},{t:'Frosted glass',e:'🧊',c:1},{t:'Clear plastic bottle',e:'🧴',c:2}],mis:'materials',why:'Opaque objects (book, door) block all light. Translucent objects (tissue, frosted glass) let some light through. Transparent objects (glass window, clear bottle) let almost all light through.'},
+ {l:0,type:'tf',q:'True or False? A shadow is the <b>same shape</b> as the object that makes it.',opts:['True','False'],a:0,mis:{1:'shape'},why:'True! Light travels in straight lines, so the light that passes the edges of the object makes a shadow with the same outline shape.'},
+ {l:0,type:'tf',q:'True or False? A shadow forms on the <b>same side</b> of the object as the light source.',opts:['True','False'],a:1,mis:{0:'side'},why:'False. The light hits the front of the object, so the shadow forms <b>behind</b> it – on the opposite side from the light.'},
+ {l:0,type:'mc',q:'Light travels in…',opts:['curved lines','straight lines','zig-zag lines','circles'],a:1,mis:{0:'straight',2:'straight',3:'straight'},why:'Light travels in <b>straight lines</b>. It cannot bend around an object, which is why shadows form.'},
+ {l:0,type:'mc',q:'You move a pencil <b>away</b> from the torch (closer to the wall). What happens to its shadow?',opts:['It gets bigger','It gets smaller','It stays the same','It disappears'],a:1,mis:{0:'distance',2:'distance',3:'distance'},why:'Moving the object away from the light makes the shadow <b>smaller</b>. Moving it closer to the light makes the shadow bigger.'},
+ {l:0,type:'mc',q:'Which statement is correct?',opts:['Shadows form when light passes through an object.','Shadows form when light is blocked by an object.','Shadows form when there is no light at all.','Shadows are made by mirrors.'],a:1,mis:{0:'light-through',2:'source',3:'reflection'},why:'Shadows need light <b>and</b> an object to block it. With no light at all, everything is dark and there is no shadow to see.'},
+ {l:0,type:'mc',q:'Complete the sentence: "When the light is <b>closer</b> to the object, the shadow becomes ______."',opts:['shorter','longer / bigger','lighter in colour','the same'],a:1,mis:{0:'distance',2:'distance',3:'distance'},why:'When the light is closer, the object blocks a <b>wider</b> spread of light rays, so the shadow becomes bigger.'},
+
+ // ---------- SILVER (L1) – Murad's line graph ----------
+ {l:1,type:'mc',graph:true,q:'Look at Murad\'s graph. What happens to the shadow length as the distance from the light increases?',opts:['It increases','It decreases','It stays the same','It goes up then down'],a:1,mis:{0:'graph-trend',2:'graph-trend',3:'graph-trend'},why:'Following the line from left to right, the shadow length goes <b>down</b>. As distance increases, shadow length decreases.'},
+ {l:1,type:'mc',graph:true,q:'Which result looks <b>wrong</b> (does not fit the pattern)?',opts:['10 cm','20 cm','40 cm','50 cm'],a:2,mis:{0:'anomaly',1:'anomaly',3:'anomaly'},why:'At 40 cm the shadow is 15 cm – <b>longer</b> than at 30 cm (12 cm). It should be about 10 cm. This is an <b>anomaly</b>.'},
+ {l:1,type:'mc',graph:true,q:'What should Murad do to improve his results?',opts:['Delete all his results','Repeat the measurement at 40 cm','Change the object halfway through','Draw the line through every point anyway'],a:1,mis:{0:'anomaly',2:'fair-test',3:'anomaly'},why:'He should <b>repeat</b> the 40 cm measurement (ideally 3 times and find the average) to check it.'},
+ {l:1,type:'mc',graph:true,q:'What was the shadow length when the object was <b>20 cm</b> from the light?',opts:['12 cm','16 cm','20 cm','24 cm'],a:1,mis:{0:'graph-read',2:'graph-read',3:'graph-read'},why:'Go up from 20 cm on the x-axis to the line, then across to the y-axis: <b>16 cm</b>.'},
+ {l:1,type:'mc',graph:true,q:'At which distance was the shadow the <b>shortest</b>?',opts:['10 cm','30 cm','40 cm','50 cm'],a:3,mis:{0:'graph-read',1:'graph-read',2:'graph-read'},why:'The lowest point on the graph is at <b>50 cm</b>, with a shadow of 8 cm.'},
+ {l:1,type:'mc',graph:true,q:'Which variable did Murad <b>change</b> (shown on the x-axis)?',opts:['Shadow length','Distance from the light','Brightness of the torch','Size of the object'],a:1,mis:{0:'variables',2:'variables',3:'variables'},why:'The variable you change (independent variable) goes on the <b>x-axis</b>: the distance from the light.'},
+ {l:1,type:'mc',graph:true,q:'Predict: about how long would the shadow be at <b>60 cm</b>?',opts:['About 7 cm','About 12 cm','About 20 cm','About 30 cm'],a:0,mis:{1:'graph-trend',2:'graph-trend',3:'graph-trend'},why:'The pattern shows the shadow getting shorter, but more slowly. After 8 cm at 50 cm, the next value would be a little less – about <b>7 cm</b>.'},
+ {l:1,type:'mc',graph:true,q:'How much shorter did the shadow get from 10 cm to 20 cm?',opts:['4 cm','8 cm','10 cm','16 cm'],a:1,mis:{0:'graph-read',2:'graph-read',3:'graph-read'},why:'24 cm − 16 cm = <b>8 cm</b> shorter.'},
+ {l:1,type:'mc',q:'Why is a <b>line graph</b> a good choice for Murad\'s results?',opts:['Both variables are measured in numbers that can change smoothly','Line graphs are more colourful','He only had one result','Bar charts are not allowed in science'],a:0,mis:{1:'graph-trend',2:'graph-trend',3:'graph-trend'},why:'Distance and shadow length are both <b>continuous</b> number data, so a line graph shows the pattern between them clearly.'},
+ {l:1,type:'tf',graph:true,q:'True or False? Murad\'s graph shows that the closer the object is to the light, the longer the shadow.',opts:['True','False'],a:0,mis:{1:'distance'},why:'True. At 10 cm (closest) the shadow is 24 cm – the longest. Closer to the light = bigger shadow.'},
+
+ // ---------- GOLD (L2) – Justify ----------
+ {l:2,type:'sim',q:'🔦 <b>Shadow Lab:</b> Move the torch to make the pencil\'s shadow on the wall <b>more than 25 cm</b> tall. Then press <b>Check</b>.',target:25,mis:'distance',why:'When the torch is <b>closer</b> to the object, the object blocks a wider spread of light rays, so the shadow on the wall is bigger.'},
+ {l:2,type:'mc',q:'<b>Justify:</b> Why does a shadow have the same shape as the object?',opts:['Because light travels in straight lines and is blocked by the outline of the object','Because the object reflects its shape onto the wall','Because shadows are pictures of objects','Because light bends around the object'],a:0,mis:{1:'reflection',2:'reflection',3:'straight'},why:'Light travels in straight lines. The rays that just miss the edges of the object make the edges of the shadow, so the shadow copies the object\'s outline.'},
+ {l:2,type:'mc',q:'<b>Two Truths and a Lie!</b> Which statement is the <b>LIE</b>?',opts:['Shadows are always exactly the same SIZE as the object.','Light travels in straight lines, so shadows form on the opposite side from the light.','Opaque objects block light completely and form the darkest shadows.'],a:0,mis:{1:'side',2:'materials'},why:'The shadow has the same <b>shape</b> (outline), but its <b>size</b> changes with distance from the light – and it can stretch when the light is at an angle.'},
+ {l:2,type:'mc',q:'If the book were replaced with <b>tissue paper</b> (translucent), the shadow would be…',opts:['darker, because tissue is thin','fainter, because some light passes through','exactly the same','gone, because all light passes through'],a:1,mis:{0:'materials',2:'materials',3:'materials'},why:'Translucent materials let <b>some</b> light through, so the shadow is fainter (lighter) than an opaque object\'s shadow.'},
+ {l:2,type:'mc',q:'If the object were <b>transparent</b> (like clear glass), what would happen to the shadow?',opts:['A very dark shadow','Almost no shadow, because nearly all light passes through','A bigger shadow','A coloured reflection'],a:1,mis:{0:'materials',2:'distance',3:'reflection'},why:'Transparent materials let almost all light pass through, so there is very little or no shadow.'},
+ {l:2,type:'mc',q:'Your results were slightly different from your prediction. What is the <b>best</b> explanation?',opts:['Science is always wrong','Small measuring errors, or the torch or object moved slightly','The shadow was tired','The ruler changed size'],a:1,mis:{0:'reliable',2:'reliable',3:'reliable'},why:'Small differences usually come from <b>measuring errors</b> or equipment moving. Repeating the test helps to check.'},
+ {l:2,type:'mc',q:'Why can\'t you see a shadow in a <b>completely dark</b> room?',opts:['Shadows only exist outside','There is no light for the object to block','Objects are transparent in the dark','Shadows hide in the dark'],a:1,mis:{0:'source',2:'materials',3:'source'},why:'A shadow needs light to be blocked. With no light, there is nothing to block, so there is no shadow – everything is dark.'},
+ {l:2,type:'mc',q:'At <b>midday</b> in Dubai, your shadow is very short. Why?',opts:['The Sun is high in the sky','The Sun is closer to Earth at midday','You are taller at midday','The Sun is not a light source at midday'],a:0,mis:{1:'sun',2:'sun',3:'source'},why:'When the Sun is <b>high overhead</b>, its light hits you from above, so the shadow is short. In the morning and evening the Sun is low and shadows are long.'},
+ {l:2,type:'mc',q:'In a <b>ray diagram</b>, how should you draw light?',opts:['Wavy lines with no arrows','Straight lines with arrows pointing away from the light source','Curved lines going around the object','Arrows pointing towards the light source'],a:1,mis:{0:'straight',2:'straight',3:'straight'},why:'Light travels in straight lines <b>from</b> the source, so rays are drawn as straight lines with arrows pointing away from it.'},
+ {l:2,type:'tf',q:'Sam says: "A shadow is a reflection of the object." True or False?',opts:['True','False'],a:1,mis:{0:'reflection'},why:'False. A reflection is light <b>bouncing back</b> (like in a mirror). A shadow is a dark area where light is <b>blocked</b>.'},
+
+ // ---------- PLATINUM (L3) – Plan & design: angle of the light ----------
+ {l:3,type:'mc',q:'You want to find out: <i>"How does the angle of the light source affect the shadow?"</i> What is the <span class="vocab">independent variable</span> (what you change)?',opts:['The length of the shadow','The angle of the torch','The size of the object','The colour of the wall'],a:1,mis:{0:'variables',2:'variables',3:'variables'},why:'You <b>change</b> the angle of the torch, so that is the independent variable.'},
+ {l:3,type:'mc',q:'What is the <span class="vocab">dependent variable</span> (what you measure)?',opts:['The angle of the torch','The type of torch','The length / position of the shadow','The time of day'],a:2,mis:{0:'variables',1:'variables',3:'variables'},why:'You <b>measure</b> the length (and position) of the shadow – that is the dependent variable.'},
+ {l:3,type:'mc',q:'Which should be a <span class="vocab">control variable</span> (kept the same)?',opts:['The angle of the torch','The object and its distance from the torch','The shadow length','Nothing needs to stay the same'],a:1,mis:{0:'variables',2:'variables',3:'fair-test'},why:'Keep the <b>same object</b> and the <b>same distance</b> so that only the angle changes. This makes it a fair test.'},
+ {l:3,type:'mc',q:'What equipment would you need to measure the <b>angle</b> of the torch?',opts:['A thermometer','A protractor','A stopwatch','A weighing scale'],a:1,mis:{0:'method',2:'method',3:'method'},why:'A <b>protractor</b> measures angles. You would also need a torch, an object, and a ruler to measure the shadow.'},
+ {l:3,type:'mc',q:'What makes your experiment a <span class="vocab">fair test</span>?',opts:['Changing everything at once','Changing only one variable and keeping the others the same','Doing it only once','Letting a friend guess the results'],a:1,mis:{0:'fair-test',2:'reliable',3:'fair-test'},why:'Change <b>only one</b> variable (the angle) and keep all the others the same.'},
+ {l:3,type:'mc',q:'Why should you <b>repeat</b> each measurement 3 times?',opts:['To make the experiment longer','To make the results more reliable and spot mistakes','Because the torch needs to warm up','It is not needed'],a:1,mis:{0:'reliable',2:'reliable',3:'reliable'},why:'Repeating lets you spot anomalies and find an <b>average</b>, which makes results more reliable.'},
+ {l:3,type:'mc',q:'What is the best way to <b>record</b> your results?',opts:['Remember them in your head','A table with columns for angle and shadow length (tests 1, 2, 3 and average)','Draw a picture only','Write one sentence'],a:1,mis:{0:'method',2:'method',3:'method'},why:'A <b>results table</b> keeps the data organised: angle, shadow length for each repeat, and the average.'},
+ {l:3,type:'mc',q:'<b>Predict:</b> As you move the torch <b>lower</b> (a smaller angle to the table), what will happen to the shadow?',opts:['It will get longer','It will get shorter','It will disappear','It will change shape completely'],a:0,mis:{1:'sun',2:'sun',3:'shape'},why:'A low light makes a <b>long</b> shadow – just like the Sun in the early morning or evening.'},
+ {l:3,type:'order',q:'Put the method steps in the correct order. Tap them in order 1 → 5.',steps:['Set up the torch, object and screen, and keep the distance the same','Set the torch to the first angle using a protractor','Measure the shadow length with a ruler','Repeat 3 times and work out the average','Change to the next angle and record the results in a table'],mis:'method',why:'Set up → set the angle → measure → repeat and average → change the angle and record. Following an order keeps the test fair.'},
+ {l:3,type:'mc',q:'Which graph would best show how the <b>angle</b> affects the <b>shadow length</b>?',opts:['A line graph','A pie chart','A pictogram','No graph is needed'],a:0,mis:{1:'graph-trend',2:'graph-trend',3:'graph-trend'},why:'Angle and shadow length are both continuous numbers, so a <b>line graph</b> shows the pattern best.'}
+];
+Q.forEach((q,i)=>q.id=i);
+
+/* ================= STATE ================= */
+const SAVE_KEY='shadowQuest.v1';
+let S = freshState();
+function freshState(){return {name:'',cls:'',blook:'lumo',gold:0,startTime:null,endTime:null,bestStreak:0,streak:0,
+  attempts:[[],[],[],[]], // each: {score, answers:[{id,ok,given}]}
+  unlocked:1, bots:BOTS.map(()=>Math.floor(Math.random()*40)), reflect:['','','']};}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&s.name)return s}catch(e){}return null}
+let run=null; // current level run
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=n=>Math.round(n).toLocaleString('en-GB');
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0)}
+function toast(msg){const t=$('toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
+function updGold(){document.querySelectorAll('.goldval').forEach(e=>e.textContent=fmt(S.gold))}
+function meChip(){const b=blookById(S.blook);return `${b.svg}<div class="chip">${esc(S.name)}${S.cls?' · '+esc(S.cls):''}</div>`}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+/* ================= SOUND ================= */
+let AC=null;
+function tone(f,d=.12,type='sine',v=.15,delay=0){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+delay;o.start(t);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.stop(t+d+.02)}catch(e){}}
+const sfx={good(){tone(660,.12,'triangle');tone(880,.18,'triangle',.15,.1)},bad(){tone(220,.25,'sawtooth',.08)},
+  coin(){tone(988,.08,'square',.06);tone(1319,.2,'square',.06,.08)},chest(){[523,659,784,1047].forEach((f,i)=>tone(f,.15,'triangle',.12,i*.07))},
+  lose(){tone(400,.2,'sawtooth',.07);tone(260,.3,'sawtooth',.07,.15)},click(){tone(500,.05,'square',.04)}};
+
+/* ================= CONFETTI ================= */
+const cv=$('confetti'),cx=cv.getContext('2d');let parts=[];
+function resize(){cv.width=innerWidth;cv.height=innerHeight}addEventListener('resize',resize);resize();
+function confetti(n=120){const cols=['#ffc83d','#3a86ff','#2ec27e','#ef476f','#8338ec','#fff'];for(let i=0;i<n;i++)parts.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-3,s:Math.random()*8+4,c:cols[i%cols.length],r:Math.random()*6,life:120});if(parts.length===n)loop()}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.r+=.1;p.life--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()});parts=parts.filter(p=>p.life>0&&p.y<innerHeight+20);if(parts.length)requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height)}
+
+/* ================= START SCREEN ================= */
+function renderBlookPick(){$('blookPick').innerHTML=BLOOKS.map(b=>`<button class="blook ${b.id===S.blook?'sel':''}" data-id="${b.id}">${b.svg}<b>${b.name}</b><small>${b.role}</small></button>`).join('');
+  document.querySelectorAll('.blook').forEach(el=>el.onclick=()=>{S.blook=el.dataset.id;sfx.click();renderBlookPick()})}
+const saved=load();
+if(saved){S=Object.assign(freshState(),saved);$('pname').value=S.name;$('pclass').value=S.cls;
+  $('resumeNote').innerHTML=`Welcome back, <b>${esc(S.name)}</b>! Your progress is saved. <a href="#" id="newPlayer">New player?</a>`;
+  setTimeout(()=>{const np=$('newPlayer');if(np)np.onclick=e=>{e.preventDefault();try{localStorage.removeItem(SAVE_KEY)}catch(_){}S=freshState();$('pname').value='';$('pclass').value='';$('resumeNote').textContent='';renderBlookPick()}},0)}
+renderBlookPick();
+$('startBtn').onclick=()=>{const n=$('pname').value.trim();if(!n){toast('✏️ Please type your name first');$('pname').focus();return}
+  S.name=n;S.cls=$('pclass').value.trim();if(!S.startTime)S.startTime=Date.now();save();sfx.chest();renderMap()};
+
+/* ================= MAP ================= */
+function bestScore(l){const a=S.attempts[l];return a.length?Math.max(...a.map(x=>x.score)):null}
+function renderMap(){
+  $('meChip').innerHTML=meChip();updGold();$('bestStreakMap').textContent=S.bestStreak;
+  $('levels').innerHTML=LEVELS.map((L,i)=>{const locked=i>=S.unlocked;const best=bestScore(i);
+    const st=best===null?'Not played yet':`Best: ${best}/10 ${best>=PASS?'✅':''}`;
+    return `<div class="lvl l${i} ${locked?'locked':''}"><h3>${L.icon} ${L.name}</h3><span class="st">${st}</span><p>${L.short}</p>
+      <button class="btn gold" ${locked?'disabled':''} data-l="${i}">${locked?'Locked':(best===null?'Play ▶':'Play again ↻')}</button></div>`}).join('');
+  document.querySelectorAll('#levels [data-l]').forEach(b=>b.onclick=()=>startLevel(+b.dataset.l));
+  renderLB();show('map')}
+function renderLB(){const rows=[{name:S.name+' (you)',blook:S.blook,g:S.gold,me:1},...BOTS.map((b,i)=>({name:b.name,blook:b.blook,g:S.bots[i]}))].sort((a,b)=>b.g-a.g);
+  $('lbList').innerHTML=rows.map((r,i)=>`<div class="item ${r.me?'me1':''}"><span class="rank">${['🥇','🥈','🥉'][i]||i+1}</span>${blookById(r.blook).svg}<span>${esc(r.name)}</span><span class="g">🪙 ${fmt(r.g)}</span></div>`).join('')}
+$('finishBtn').onclick=()=>{if(!S.attempts.some(a=>a.length)){toast('Play at least one level first!');return}S.endTime=Date.now();save();renderReport()};
+
+/* ================= LEVEL RUN ================= */
+function startLevel(l){run={l,qs:shuffle(Q.filter(q=>q.l===l)),i:0,score:0,answers:[],res:[]};
+  $('meChip2').innerHTML=meChip();$('lvlChip').innerHTML=`${LEVELS[l].icon} ${LEVELS[l].name}`;$('lvlChip').style.background=LEVELS[l].color;
+  S.streak=0;$('streak').textContent=0;$('toast').classList.remove('show');updGold();show('quiz');renderQ()}
+function renderProgress(){$('progress').innerHTML=run.qs.map((_,i)=>`<i class="${i<run.res.length?(run.res[i]?'ok':'no'):(i===run.i?'cur':'')}"></i>`).join('')}
+
+function renderQ(){
+  const q=run.qs[run.i];renderProgress();
+  $('feedback').className='feedback';$('feedback').innerHTML='';$('nextBtn').style.display='none';
+  const L=LEVELS[q.l];
+  let h=`<span class="qtag" style="background:${L.color}">Question ${run.i+1} of ${run.qs.length}</span><div class="qtext">${q.q}</div>`;
+  if(q.graph)h+=`<div style="max-width:560px;margin:0 auto 12px">${graphSVG()}</div>`;
+  if(q.type==='mc'||q.type==='tf'){
+    const order=q.type==='tf'?q.opts.map((_,i)=>i):shuffle(q.opts.map((_,i)=>i));
+    h+=`<div class="opts">${order.map((oi,k)=>`<button class="opt o${k%4}" data-oi="${oi}">${q.opts[oi]}</button>`).join('')}</div>`;
+    $('qbody').innerHTML=h;
+    document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answerMC(q,+b.dataset.oi,b));
+  }else if(q.type==='sort'){
+    const items=shuffle(q.items.map((it,i)=>({...it,i})));run.sortSel={};
+    h+=items.map(it=>`<div class="sortrow" data-i="${it.i}"><div class="it"><span class="e">${it.e}</span>${it.t}</div>${q.cats.map((c,ci)=>`<button class="catb" data-i="${it.i}" data-c="${ci}">${c}</button>`).join('')}</div>`).join('');
+    h+=`<div class="nextbar"><button class="btn green" id="checkBtn" disabled>Check ✓</button></div>`;
+    $('qbody').innerHTML=h;
+    document.querySelectorAll('.catb').forEach(b=>b.onclick=()=>{if(run.locked)return;run.sortSel[b.dataset.i]=+b.dataset.c;sfx.click();
+      document.querySelectorAll(`.catb[data-i="${b.dataset.i}"]`).forEach(x=>x.classList.toggle('sel',x===b));
+      $('checkBtn').disabled=Object.keys(run.sortSel).length<q.items.length});
+    $('checkBtn').onclick=()=>answerSort(q);
+  }else if(q.type==='order'){
+    const pool=shuffle(q.steps.map((s,i)=>({s,i})));run.seq=[];
+    h+=`<div class="cols2"><div><b>Steps</b><div class="ordpool" id="ordpool">${pool.map(p=>`<button class="ordb" data-i="${p.i}">${p.s}</button>`).join('')}</div></div>
+       <div><b>Your method</b><div class="ordseq" id="ordseq"></div></div></div>
+       <div class="nextbar" style="gap:10px"><button class="btn ghost" id="ordReset">Reset</button><button class="btn green" id="checkBtn" disabled>Check ✓</button></div>`;
+    $('qbody').innerHTML=h;
+    document.querySelectorAll('.ordb').forEach(b=>b.onclick=()=>{if(run.locked)return;run.seq.push(+b.dataset.i);b.classList.add('used');sfx.click();drawSeq(q);$('checkBtn').disabled=run.seq.length<q.steps.length});
+    $('ordReset').onclick=()=>{if(run.locked)return;run.seq=[];document.querySelectorAll('.ordb').forEach(b=>b.classList.remove('used'));drawSeq(q);$('checkBtn').disabled=true};
+    $('checkBtn').onclick=()=>answerOrder(q);drawSeq(q);
+  }else if(q.type==='sim'){
+    h+=`<div class="simbox"><svg id="simsvg" viewBox="0 0 600 260"></svg></div>
+      <input type="range" class="slider" id="simr" min="5" max="45" step="1" value="10">
+      <div class="simread"><span>◀ Torch far from pencil</span><span>Torch close to pencil ▶</span></div>
+      <div class="center" style="font-size:20px;font-weight:600" id="simval"></div>
+      <div class="nextbar"><button class="btn green" id="checkBtn">Check ✓</button></div>`;
+    $('qbody').innerHTML=h;const r=$('simr');r.oninput=()=>drawSim(+r.value,q.target);drawSim(+r.value,q.target);
+    $('checkBtn').onclick=()=>answerSim(q,+r.value);
+  }
+  run.locked=false;
+}
+function drawSeq(q){$('ordseq').innerHTML=run.seq.map((i,k)=>`<div class="s" data-k="${k}"><b>${k+1}</b>${q.steps[i]}</div>`).join('')||'<div style="color:var(--muted)">Tap the steps on the left in order…</div>'}
+
+/* ---- Murad's graph ---- */
+const GD=[[10,24],[20,16],[30,12],[40,15],[50,8]];
+function graphSVG(){const W=520,H=300,x0=60,y0=250,xs=(W-90)/60,ys=200/30;
+  const X=d=>x0+d*xs,Y=v=>y0-v*ys;let g=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;background:#fbfaff;border-radius:14px;border:2px solid #e5e0fa">`;
+  for(let v=0;v<=30;v+=5)g+=`<line x1="${x0}" y1="${Y(v)}" x2="${X(60)}" y2="${Y(v)}" stroke="#e7e3fb"/><text x="${x0-10}" y="${Y(v)+5}" text-anchor="end" font-size="13" fill="#555">${v}</text>`;
+  for(let d=0;d<=60;d+=10)g+=`<line x1="${X(d)}" y1="${y0}" x2="${X(d)}" y2="${Y(30)}" stroke="#f0edfc"/><text x="${X(d)}" y="${y0+20}" text-anchor="middle" font-size="13" fill="#555">${d}</text>`;
+  g+=`<line x1="${x0}" y1="${y0}" x2="${X(60)}" y2="${y0}" stroke="#333" stroke-width="2"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${Y(30)}" stroke="#333" stroke-width="2"/>`;
+  g+=`<polyline points="${GD.map(p=>X(p[0])+','+Y(p[1])).join(' ')}" fill="none" stroke="#8338ec" stroke-width="3"/>`;
+  g+=GD.map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="6" fill="#ff9f1c" stroke="#fff" stroke-width="2"/>`).join('');
+  g+=`<text x="${(x0+X(60))/2}" y="${H-6}" text-anchor="middle" font-size="14" font-weight="600" fill="#333">Distance of object from light (cm)</text>`;
+  g+=`<text transform="translate(16 ${y0-100}) rotate(-90)" text-anchor="middle" font-size="14" font-weight="600" fill="#333">Shadow length (cm)</text>`;
+  g+=`<text x="${X(60)}" y="22" text-anchor="end" font-size="14" font-weight="700" fill="#8338ec">Murad's results</text></svg>`;return g}
+
+/* ---- Shadow sim ---- */
+// torch lens 2cm above floor at x=t (cm), pencil (10cm tall) at 60cm, wall at 100cm
+const LH=2;const shadowH=t=>LH+(10-LH)*(100-t)/(60-t);
+function drawSim(t,target){const sc=5.2,ox=30,base=230,H=10;const X=c=>ox+c*sc,Y=c=>base-c*3.2;const h=shadowH(t);const tx=X(t),ty=Y(H/2+0);
+  const lampY=Y(LH);
+  let s=`<rect x="0" y="0" width="600" height="260" fill="#0f0b2a"/>`;
+  s+=`<rect x="${X(100)}" y="${Y(60)}" width="14" height="${base-Y(60)}" fill="#d9d4f5"/>`; // wall
+  // light cone
+  s+=`<polygon points="${tx},${lampY} ${X(100)},${Y(60)} ${X(100)},${base}" fill="#ffe06633"/>`;
+  // shadow region on wall: from base up to h (pencil from base to 10)
+  s+=`<polygon points="${X(60)},${Y(H)} ${X(60)},${base} ${X(100)},${base} ${X(100)},${Y(h)}" fill="#0f0b2a"/>`;
+  s+=`<rect x="${X(100)}" y="${Y(h)}" width="14" height="${base-Y(h)}" fill="#2b2155"/>`;
+  // rays
+  s+=`<line x1="${tx}" y1="${lampY}" x2="${X(100)}" y2="${Y(h)}" stroke="#ffd166" stroke-width="2" stroke-dasharray="6 5"/>`;
+  s+=`<line x1="${tx}" y1="${lampY}" x2="${X(100)}" y2="${base}" stroke="#ffd166" stroke-width="2" stroke-dasharray="6 5"/>`;
+  // floor
+  s+=`<line x1="0" y1="${base}" x2="600" y2="${base}" stroke="#6b6890" stroke-width="3"/>`;
+  // pencil
+  s+=`<rect x="${X(60)-4}" y="${Y(H)}" width="8" height="${base-Y(H)}" fill="#ffb703"/><polygon points="${X(60)-4},${Y(H)} ${X(60)+4},${Y(H)} ${X(60)},${Y(H)-10}" fill="#f4d6a0"/>`;
+  // torch
+  s+=`<g transform="translate(${tx-26} ${lampY-10})"><rect width="22" height="20" rx="4" fill="#3a86ff"/><polygon points="22,0 30,-5 30,25 22,20" fill="#9ec5ff"/><circle cx="30" cy="10" r="6" fill="#fff6a8"/></g>`;
+  // target line
+  s+=`<line x1="${X(100)-20}" y1="${Y(target)}" x2="${X(100)+30}" y2="${Y(target)}" stroke="#2ec27e" stroke-width="2" stroke-dasharray="4 3"/><text x="${X(100)-24}" y="${Y(target)+4}" text-anchor="end" fill="#2ec27e" font-size="13" font-family="Fredoka,Arial,sans-serif">target ${target} cm</text>`;
+  s+=`<text x="${X(60)}" y="${base+20}" fill="#fff" font-size="13" text-anchor="middle" font-family="Fredoka,Arial,sans-serif">pencil</text><text x="${X(100)+7}" y="${base+20}" fill="#fff" font-size="13" text-anchor="middle" font-family="Fredoka,Arial,sans-serif">wall</text>`;
+  $('simsvg').innerHTML=s;
+  $('simval').innerHTML=`Torch to pencil: <b>${60-t} cm</b> &nbsp;·&nbsp; Shadow height: <b style="color:${h>target?'#2ec27e':'#8338ec'}">${h.toFixed(1)} cm</b>`}
+
+/* ---- Answer handlers ---- */
+function answerMC(q,oi,btn){if(run.locked)return;run.locked=true;const ok=oi===q.a;
+  document.querySelectorAll('.opt').forEach(b=>{const v=+b.dataset.oi;if(v===q.a)b.classList.add('right');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim')});
+  finish(q,ok,q.opts[oi],ok?null:(q.mis&&q.mis[oi]))}
+function answerSort(q){if(run.locked)return;run.locked=true;let ok=true;
+  document.querySelectorAll('.sortrow').forEach(r=>{const i=+r.dataset.i;const good=run.sortSel[i]===q.items[i].c;if(!good)ok=false;r.classList.add(good?'ok':'no');
+    if(!good){r.querySelectorAll('.catb').forEach(b=>{if(+b.dataset.c===q.items[i].c)b.style.borderColor='var(--good)'})}});
+  $('checkBtn').style.display='none';
+  finish(q,ok,q.items.map((it,i)=>`${it.t}→${q.cats[run.sortSel[i]]}`).join(', '),ok?null:q.mis)}
+function answerOrder(q){if(run.locked)return;run.locked=true;const ok=run.seq.every((v,k)=>v===k);
+  document.querySelectorAll('#ordseq .s').forEach((d,k)=>d.classList.add(run.seq[k]===k?'ok':'no'));
+  $('checkBtn').style.display='none';$('ordReset').style.display='none';
+  finish(q,ok,run.seq.map(i=>i+1).join('-'),ok?null:q.mis)}
+function answerSim(q,t){if(run.locked)return;run.locked=true;const h=shadowH(t);const ok=h>q.target;$('simr').disabled=true;$('checkBtn').style.display='none';
+  finish(q,ok,`shadow ${h.toFixed(1)} cm`,ok?null:q.mis)}
+
+function finish(q,ok,given,mis){
+  run.res.push(ok);run.answers.push({id:q.id,ok,given:String(given).replace(/<[^>]+>/g,''),mis:mis||null});
+  if(ok){run.score++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);sfx.good()}else{S.streak=0;sfx.bad()}
+  $('streak').textContent=S.streak;
+  // bots earn too
+  S.bots=S.bots.map((g,i)=>g+Math.floor(Math.random()*45*(1+run.l*.5))+(i===0?10:0));
+  const fb=$('feedback');fb.className='feedback show '+(ok?'ok':'no');
+  let extra='';
+  if(!ok&&q.type!=='mc'&&q.type!=='tf'){if(q.type==='order')extra=`<div style="margin-top:6px"><b>Correct order:</b><ol style="margin:4px 0 0 18px;padding:0">${q.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>`}
+  fb.innerHTML=`<b class="h">${ok?['✅ Brilliant!','✅ Spot on!','✅ Great thinking!','✅ Correct!'][Math.floor(Math.random()*4)]:'❌ Not quite – here\'s why:'}</b>${q.why}${extra}`;
+  renderProgress();save();
+  const nb=$('nextBtn');nb.style.display='inline-block';
+  nb.textContent=ok?'Open a chest 🎁':(run.i+1<run.qs.length?'Next ▶':'See results ▶');
+  nb.onclick=()=>{if(ok)openChests();else nextQ()};
+  if(S.streak>0&&S.streak%3===0){S.gold+=25*(run.l+1);updGold();toast(`🔥 ${S.streak} in a row! +${25*(run.l+1)} bonus gold`)}
+  setTimeout(()=>nb.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+function nextQ(){run.i++;if(run.i<run.qs.length)renderQ();else endLevel()}
+
+/* ================= CHESTS (Gold Quest) ================= */
+const CHEST_SVG=`<svg viewBox="0 0 150 130"><rect x="15" y="55" width="120" height="65" rx="8" fill="#a0522d" stroke="#5b2c0f" stroke-width="4"/><path d="M15 60q0-45 60-45t60 45z" fill="#c8733a" stroke="#5b2c0f" stroke-width="4"/><rect x="15" y="55" width="120" height="10" fill="#ffc83d" stroke="#5b2c0f" stroke-width="3"/><rect x="65" y="50" width="20" height="28" rx="4" fill="#ffc83d" stroke="#5b2c0f" stroke-width="3"/><circle cx="75" cy="66" r="4" fill="#5b2c0f"/><rect x="30" y="62" width="8" height="58" fill="#8b4513" opacity=".5"/><rect x="112" y="62" width="8" height="58" fill="#8b4513" opacity=".5"/></svg>`;
+function rollChest(l){const m=1+l*.5;const r=Math.random()*100;
+  if(r<30)return{t:'gold',v:Math.round((10+Math.random()*20)*m)};
+  if(r<55)return{t:'gold',v:Math.round((40+Math.random()*40)*m)};
+  if(r<67)return{t:'x2'};
+  if(r<71)return{t:'x3'};
+  if(r<88)return{t:'steal'};
+  if(r<95)return{t:'lose'};
+  return{t:'gold',v:Math.round(120*m)}}
+function openChests(){const ov=$('chestOv');ov.classList.add('show');$('reward').innerHTML='';$('chestNext').style.display='none';
+  $('chestTitle').textContent='Correct! Choose a chest 🎁';
+  $('chests').innerHTML=[0,1,2].map(i=>`<button class="chest" data-i="${i}">${CHEST_SVG}</button>`).join('');
+  let done=false;
+  document.querySelectorAll('.chest').forEach(c=>c.onclick=()=>{if(done)return;done=true;c.classList.add('open');
+    document.querySelectorAll('.chest').forEach(x=>{if(x!==c)x.style.opacity=.3});
+    const res=rollChest(run.l);let msg='';
+    if(res.t==='gold'){S.gold+=res.v;msg=`+${fmt(res.v)} 🪙<small>${res.v>=100?'Jackpot!':'Nice find!'}</small>`;sfx.coin()}
+    else if(res.t==='x2'){const b=S.gold;S.gold=S.gold+Math.min(Math.max(S.gold,30),200*(run.l+1));msg=`DOUBLE! ×2<small>${fmt(b)} → ${fmt(S.gold)} gold</small>`;sfx.chest();confetti(80)}
+    else if(res.t==='x3'){const b=S.gold;S.gold=S.gold+Math.min(Math.max(S.gold*2,60),400*(run.l+1));msg=`TRIPLE!! ×3<small>${fmt(b)} → ${fmt(S.gold)} gold</small>`;sfx.chest();confetti(140)}
+    else if(res.t==='steal'){let top=0;S.bots.forEach((g,i)=>{if(g>S.bots[top])top=i});const v=Math.max(15,Math.round(S.bots[top]*.2));S.bots[top]=Math.max(0,S.bots[top]-v);S.gold+=v;msg=`STEAL! +${fmt(v)} 🪙<small>You took 20% from ${BOTS[top].name}!</small>`;sfx.chest()}
+    else{const v=Math.round(S.gold*.15);S.gold-=v;msg=`Oh no! −${fmt(v)} 🪙<small>A shadow monster grabbed 15% of your gold</small>`;sfx.lose()}
+    updGold();save();$('reward').innerHTML=msg;$('chestNext').style.display='inline-block';
+    $('chestNext').textContent=run.i+1<run.qs.length?'Next question ▶':'See results ▶'});
+  $('chestNext').onclick=()=>{ov.classList.remove('show');nextQ()}}
+
+/* ================= LEVEL END ================= */
+function endLevel(){const l=run.l;S.attempts[l].push({score:run.score,answers:run.answers,t:Date.now()});
+  const pass=run.score>=PASS;let unlockedNew=false;if(pass&&S.unlocked<=l+1&&l<3){S.unlocked=l+2;unlockedNew=true}
+  save();
+  const pct=run.score*10;
+  $('lvlendBody').innerHTML=`<div class="big">${pass?LEVELS[l].icon:'💪'}</div>
+    <h2>${pass?LEVELS[l].name+' level complete!':'Keep going!'}</h2>
+    <p style="font-size:20px">You scored <b>${run.score} / 10</b></p>
+    <div class="bar" style="max-width:420px;margin:10px auto"><i style="width:${pct}%;background:${pass?'var(--good)':'var(--bad)'}"></i></div>
+    <p>${pass?(unlockedNew?`🔓 <b>${LEVELS[l+1].name}</b> is now unlocked!`:(l===3?'🏆 You completed every level, Shadow Master!':'Great work!')):`You need ${PASS}/10 to unlock the next level. Read the explanations and try again – you can do it!`}</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+      <button class="btn ghost" id="retryBtn">Play again ↻</button>
+      <button class="btn gold" id="mapBtn">Level map 🗺️</button>
+      <button class="btn green" id="repBtn">My report 📋</button></div>`;
+  show('lvlend');if(pass){confetti(160);sfx.chest()}
+  $('retryBtn').onclick=()=>startLevel(l);$('mapBtn').onclick=renderMap;$('repBtn').onclick=()=>{S.endTime=Date.now();save();renderReport()}}
+
+/* ================= REPORT ================= */
+function mastery(best){if(best===null)return['Not attempted','b-na'];if(best>=9)return['Exceeding','b-ex'];if(best>=PASS)return['Achieved','b-ach'];return['Working towards','b-wt']}
+function renderReport(){
+  const b=blookById(S.blook);const end=S.endTime||Date.now();const mins=S.startTime?Math.max(1,Math.round((end-S.startTime)/60000)):0;
+  let tot=0,cor=0;const misCount={};const firstTry=[];
+  S.attempts.forEach((arr,l)=>arr.forEach((a,k)=>a.answers.forEach(x=>{tot++;if(x.ok)cor++;if(x.mis)misCount[x.mis]=(misCount[x.mis]||0)+1})));
+  const acc=tot?Math.round(cor/tot*100):0;
+  const scRows=LEVELS.map((L,l)=>{const best=bestScore(l);const first=S.attempts[l][0]?S.attempts[l][0].score:null;const[m,c]=mastery(best);
+    return `<tr><td><b>${L.icon} ${L.name}</b><br><span style="color:var(--muted);font-size:14px">${L.sc}</span></td>
+      <td style="min-width:120px"><div class="bar" style="height:14px"><i style="width:${(best||0)*10}%;background:${L.color}"></i></div><span style="font-size:14px">${best===null?'–':best+'/10 best'}${first!==null&&S.attempts[l].length>1?` (1st try ${first}/10, ${S.attempts[l].length} tries)`:''}</span></td>
+      <td><span class="badge ${c}">${m}</span></td></tr>`}).join('');
+  const misList=Object.entries(misCount).sort((a,b)=>b[1]-a[1]);
+  // next step: lowest attempted / first not passed
+  let target='';const firstNotPassed=LEVELS.findIndex((_,l)=>(bestScore(l)||0)<PASS);
+  if(firstNotPassed===-1)target='Amazing – you achieved every success criterion! Challenge: at home, investigate how the angle of a torch changes the length of a shadow and draw a line graph of your results.';
+  else{const L=LEVELS[firstNotPassed];target=`Work on <b>${L.name}</b>: “${L.sc}” ${misList.length?'Start by reviewing the “Remember” points below.':''}`}
+  // question review (latest attempt per level)
+  const review=S.attempts.map((arr,l)=>{if(!arr.length)return'';const a=arr[arr.length-1];
+    return `<div style="margin-top:8px"><b>${LEVELS[l].icon} ${LEVELS[l].name}</b> (latest try: ${a.score}/10)`+a.answers.map(x=>{const q=Q[x.id];const ans=q.type==='mc'||q.type==='tf'?q.opts[q.a]:'';
+      return `<div class="ri">${x.ok?'✅':'❌'} ${q.q.replace(/<[^>]+>/g,'')}${!x.ok&&ans?`<br><span style="color:var(--muted)">Your answer: ${esc(x.given)} · Correct: <b>${ans.replace(/<[^>]+>/g,'')}</b></span>`:''}</div>`}).join('')+'</div>'}).join('');
+  $('reportBody').innerHTML=`
+    <div class="rhead">${b.svg}<div style="flex:1;min-width:200px"><h2 style="color:var(--violet)">Shadow Quest – My Report</h2>
+      <div style="font-size:18px"><b>${esc(S.name)}</b>${S.cls?' · Class '+esc(S.cls):''} · ${new Date(end).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div style="color:var(--muted)">Year 6 Science · Shadow Investigations</div></div></div>
+    <div class="stats">
+      <div class="stat"><b>${acc}%</b><span>Accuracy</span></div>
+      <div class="stat"><b>${cor}/${tot}</b><span>Correct answers</span></div>
+      <div class="stat"><b>🪙 ${fmt(S.gold)}</b><span>Gold collected</span></div>
+      <div class="stat"><b>🔥 ${S.bestStreak}</b><span>Best streak</span></div>
+      <div class="stat"><b>${mins} min</b><span>Time played</span></div></div>
+    <div class="sect"><h3>Success Criteria</h3><table class="sc"><tr><th>Level</th><th>Score</th><th>Mastery</th></tr>${scRows}</table></div>
+    <div class="sect"><h3>🎯 My next step</h3><p style="font-size:17px;margin:4px 0">${target}</p></div>
+    <div class="sect"><h3>🧠 Remember (things to work on)</h3>${misList.length?`<ul class="mis">${misList.map(([k,n])=>`<li>${MIS[k]} <span style="color:var(--muted)">(${n}×)</span></li>`).join('')}</ul>`:'<p>No misconceptions found – excellent understanding! 🌟</p>'}</div>
+    <div class="sect reflect"><h3>✍️ 3-2-1 Exit Ticket</h3>
+      <label class="f">3 things I learned today</label><textarea data-r="0">${esc(S.reflect[0])}</textarea>
+      <label class="f">2 things I found interesting</label><textarea data-r="1">${esc(S.reflect[1])}</textarea>
+      <label class="f">1 question I still have</label><textarea data-r="2">${esc(S.reflect[2])}</textarea></div>
+    <div class="sect review"><h3>📝 Question review</h3>${review}</div>
+    <div class="noprint" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px">
+      <button class="btn ghost" id="backMap">Back to levels 🗺️</button>
+      <button class="btn gold" id="printBtn">Print / Save PDF 🖨️</button></div>`;
+  document.querySelectorAll('.reflect textarea').forEach(t=>t.oninput=()=>{S.reflect[+t.dataset.r]=t.value;save()});
+  $('backMap').onclick=renderMap;$('printBtn').onclick=()=>window.print();
+  show('report');confetti(100)}
+</script>
+</body>
+</html>
